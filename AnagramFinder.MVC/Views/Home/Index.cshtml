@@ -1,0 +1,77 @@
+﻿
+@using AnagramFinder.MVC.Helpers
+@using AnagramFinder.MVC.Models
+@model ContentViewModel
+
+@{
+    ViewBag.Title = "Index";
+}
+<h2>Anagram Finder</h2>
+
+<section>
+    <h3>Upload</h3>
+    @using (Html.BeginForm("Index", "Home", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal" }))
+    {
+        <div class="control-group">
+            @Html.Label("file", "File upload", new { @class = "control-label"})
+            <div class="controls">
+                @Html.File("SubmittedFile")
+                @Html.ValidationMessage("SubmittedFile")
+            </div>
+        </div>
+        <div class="form-actions">
+            @Html.Submit("Upload File", new { @class = "btn btn-primary"})
+        </div>
+    }
+</section>
+
+
+<section>
+    <h3>Search</h3>
+    
+    @{
+        AjaxOptions ajaxOptions = new AjaxOptions()
+            {
+                UpdateTargetId = "results", 
+                Url = Url.Action("Search"), 
+                OnSuccess = "update", 
+                InsertionMode = InsertionMode.InsertBefore, 
+                HttpMethod = "GET",
+                OnComplete = "resetSearch"
+            };
+    }
+    
+
+    @using (Ajax.BeginForm("Search", "Home", ajaxOptions, new { @class = "form-search" }))
+    {
+        <div class="input-append">
+            @Html.TextBox("term", "", new {placeholder = "e.g apple, jedi, cat, pizza", @class = "span3 search-query"})
+            @Html.Submit("Search", new { @class = "btn"})
+        </div>
+    }
+</section>
+
+
+<section>
+    <h3>Results</h3>
+    <ul id="results" class="unstyled well">
+        @foreach (var result in Model.Results ?? Enumerable.Empty<ResultViewModel>())
+        {
+            @Html.Partial("_Result", result)
+        }
+    </ul>
+</section>
+
+
+@section scripts 
+{
+    <script type="text/javascript">
+        function update() {
+            $('#results li:first').effect('highlight', { color: '#c09853', easing: 'linear' }, 100);
+        }
+        function resetSearch() {
+            $('#term').val('');
+        }
+    </script>
+}
+

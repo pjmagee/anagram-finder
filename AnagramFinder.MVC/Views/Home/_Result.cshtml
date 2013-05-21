@@ -1,0 +1,12 @@
+﻿@model AnagramFinder.MVC.Models.ResultViewModel
+
+@if (Model.Anagrams.Any())
+{
+    <li title="@(Model.Elapsed)ms" class="text-success">Found @string.Join(", ", Model.Anagrams) for @Model.Term in <strong>@(Model.Elapsed)ms</strong></li>
+}
+else
+{
+    <li title="@(Model.Elapsed)ms" class="text-error">No results for @Model.Term @(Model.Elapsed)ms</li>
+}
+
+
