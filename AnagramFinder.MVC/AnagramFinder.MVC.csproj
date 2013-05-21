@@ -129,6 +129,7 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Helpers\HtmlHelperExtensions.cs" />
+    <Compile Include="Helpers\StringExtensions.cs" />
     <Compile Include="Models\ResultViewModel.cs" />
     <Compile Include="Models\ContentViewModel.cs" />
     <Compile Include="Controllers\HomeController.cs" />

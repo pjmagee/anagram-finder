@@ -45,8 +45,10 @@ namespace AnagramFinder.MVC.Controllers
         {
             var contents = Session["content"] as string;
 
-            if (!string.IsNullOrWhiteSpace(term))
+            if (term.HasValue())
             {
+                // Search for anagrams of a particular search term
+
                 var model = new ResultViewModel {Anagrams = new List<string>(), Term = term};
 
                 Stopwatch startNew = Stopwatch.StartNew();
@@ -54,7 +56,8 @@ namespace AnagramFinder.MVC.Controllers
                 var orderedTerm = term.ToLower().OrderBy(x => x);
 
                 var anagrams = contents.Split(new[] { " ", "\n", Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries)
-                                       .Distinct().Where(word => term.Length == word.Length)
+                                       .Distinct()
+                                       .Where(word => term.Length == word.Length && !string.Equals(word, term, StringComparison.CurrentCultureIgnoreCase))
                                        .Where(word => orderedTerm.SequenceEqual(word.ToLower().OrderBy(character => character)))
                                        .ToList();
                 startNew.Stop();
@@ -65,6 +68,7 @@ namespace AnagramFinder.MVC.Controllers
             }
             else
             {
+                // Find everything we can which may have an anagram
                 Stopwatch startNew = Stopwatch.StartNew();
 
                 var models = new List<ResultViewModel>();
