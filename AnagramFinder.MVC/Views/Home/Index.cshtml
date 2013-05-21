@@ -53,9 +53,9 @@
 
 
 <section>
-    <h3>Results</h3>
+    <h3>Results <small>for @Model.FileName</small></h3>
     <ul id="results" class="unstyled well">
-        @foreach (var result in Model.Results ?? Enumerable.Empty<ResultViewModel>())
+        @foreach (var result in Model.Results.OrEmptyIfNull().OrderByDescending(x => x.Created))
         {
             @Html.Partial("_Result", result)
         }

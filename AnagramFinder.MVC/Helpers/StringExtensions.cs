@@ -1,4 +1,6 @@
-﻿namespace AnagramFinder.MVC.Helpers
+﻿using System.Collections;
+
+namespace AnagramFinder.MVC.Helpers
 {
     public static class StringExtensions
     {

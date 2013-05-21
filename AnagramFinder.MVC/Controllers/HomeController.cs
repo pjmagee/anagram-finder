@@ -29,21 +29,25 @@ namespace AnagramFinder.MVC.Controllers
                 byte[] data = reader.ReadBytes((int)submitViewModel.SubmittedFile.InputStream.Length); // read the raw data
                 Session["content"] = Encoding.UTF8.GetString(data); // put into session
                 Session["results"] = new List<ResultViewModel>(); // new results 
-            }
 
-            var model = new ContentViewModel()
+                var model = new ContentViewModel()
                 {
                     Content = Session["content"] as string,
-                    Results = Session["results"] as List<ResultViewModel>
+                    Results = Session["results"] as List<ResultViewModel>,
+                    FileName = submitViewModel.SubmittedFile.FileName
                 };
 
-            return View(model);
+                return View(model);
+            }
+
+            return View(new ContentViewModel());
         }
         
         [HttpGet, AjaxOnly]
         public ActionResult Search(string term)
         {
             var contents = Session["content"] as string;
+            var results = Session["results"] as List<ResultViewModel> ?? new List<ResultViewModel>();
 
             if (term.HasValue())
             {
@@ -56,13 +60,18 @@ namespace AnagramFinder.MVC.Controllers
                 var orderedTerm = term.ToLower().OrderBy(x => x);
 
                 var anagrams = contents.Split(new[] { " ", "\n", Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries)
-                                       .Distinct()
-                                       .Where(word => term.Length == word.Length && !string.Equals(word, term, StringComparison.CurrentCultureIgnoreCase))
+                                       .Distinct(StringComparer.CurrentCultureIgnoreCase) // APPLE apple, same thing
+                                       .Where(word => term.Length == word.Length && !String.Equals(word, term, StringComparison.CurrentCultureIgnoreCase))
                                        .Where(word => orderedTerm.SequenceEqual(word.ToLower().OrderBy(character => character)))
                                        .ToList();
                 startNew.Stop();
                 model.Anagrams.AddRange(anagrams);
                 model.Elapsed = startNew.ElapsedMilliseconds;
+                model.Created = DateTime.Now;
+
+                results.Add(model);
+
+                Session["results"] = results;
 
                 return PartialView("_Result", model);
             }
@@ -73,27 +82,28 @@ namespace AnagramFinder.MVC.Controllers
 
                 var models = new List<ResultViewModel>();
 
-                var groups = from word in contents.Split(new[] {" ", "\n", Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries)
+                var groups = (from word in contents.Split(new[] {" ", "\n", Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries)
                              group word by new String(word.ToCharArray().OrderBy(x => x).ToArray()) into collection
                              where collection.Count() > 1
                              orderby collection.Count() descending
-                             select new { collection, collection.Key };
-
-                var results = groups.ToList();
-                
+                             select new { collection, collection.Key }).ToList();
+               
                 startNew.Stop();
                 
-                results.ForEach(x =>
+                groups.ForEach(x =>
                     {
                         var model = new ResultViewModel()
                             {
                                 Anagrams = new List<string>(x.collection.ToArray()),
                                 Term = x.Key, 
-                                Elapsed = startNew.ElapsedMilliseconds
+                                Elapsed = startNew.ElapsedMilliseconds,
+                                Created = DateTime.Now
                             };
 
                         models.Add(model);
                     });
+
+                Session["results"] = new List<ResultViewModel>(results);
 
                 return PartialView("_Results", models);
             }
