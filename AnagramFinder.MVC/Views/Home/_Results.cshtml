@@ -1,6 +1,5 @@
 ﻿@model IEnumerable<AnagramFinder.MVC.Models.ResultViewModel>
 
-
 @foreach (var item in Model) {
-    <li title="@(item.Elapsed)ms" class="text-success">Found @string.Join(", ", item.Anagrams) for @item.Term in <strong> @(item.Elapsed)ms</strong></li>
+    @Html.Partial("_Result", item)
 }

@@ -103,7 +103,7 @@ namespace AnagramFinder.MVC.Controllers
                         models.Add(model);
                     });
 
-                Session["results"] = new List<ResultViewModel>(results);
+                Session["results"] = new List<ResultViewModel>(models);
 
                 return PartialView("_Results", models);
             }
